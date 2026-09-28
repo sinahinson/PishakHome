@@ -1,6 +1,6 @@
 <div align="center">
 <p align="center">
-  <img width="160" height="160" alt="HPX" src="https://raw.githubusercontent.com/sinahinson/PishakHome/main/docs/screenshots/logo.jpg">
+  <img width="160" height="160" alt="PishakHome" src="https://raw.githubusercontent.com/sinahinson/PishakHome/main/docs/screenshots/pishak.jpg">
 </p>
 
 <h1 align="center">Pishak Home</h1>
