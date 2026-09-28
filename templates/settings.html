@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% block title %}Pishak Home — Settings{% endblock %}
+{% block content %}
+<div class="settings-layout">
+  <div class="settings-nav">
+    <button class="active" data-section="security" onclick="showSection('security')">🔐 Security</button>
+    <button data-section="camera" onclick="showSection('camera')">📷 Camera</button>
+    <button data-section="motion" onclick="showSection('motion')">🚨 Motion</button>
+    <button data-section="recording" onclick="showSection('recording')">⏺ Recording</button>
+    <button data-section="telegram" onclick="showSection('telegram')">✈️ Telegram</button>
+    <button data-section="general" onclick="showSection('general')">⚙️ General</button>
+  </div>
+
+  <div class="settings-panels">
+
+    <section id="section-security" class="card settings-section active">
+      <h2>Security</h2>
+      {% if default_password_active %}
+      <div class="login-notice">⚠️ You're still using the default password ("pishak"). Please change it below.</div>
+      {% endif %}
+      <div class="form-grid">
+        <div class="field">
+          <label>Username</label>
+          <input type="text" id="sec-username">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button onclick="saveUsername()">Save username</button>
+        <span id="sec-username-status" class="form-status"></span>
+      </div>
+
+      <hr style="border-color: var(--border); margin: 20px 0;">
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Current password</label>
+          <input type="password" id="pw-current">
+        </div>
+        <div class="field">
+          <label>New password</label>
+          <input type="password" id="pw-new">
+        </div>
+        <div class="field">
+          <label>Confirm new password</label>
+          <input type="password" id="pw-confirm">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button onclick="savePassword()">Change password</button>
+        <span id="pw-status" class="form-status"></span>
+      </div>
+    </section>
+
+    <section id="section-camera" class="card settings-section">
+      <h2>Camera</h2>
+      <div class="switch-row">
+        <div><div class="label">Camera enabled</div><div class="hint">Turn the whole camera subsystem off to save resources</div></div>
+        <label class="switch"><input type="checkbox" id="cam-enabled"><span class="slider"></span></label>
+      </div>
+      <div class="form-grid" style="margin-top: 14px;">
+        <div class="field"><label>Device path</label><input type="text" id="cam-device"></div>
+        <div class="field"><label>Width</label><input type="number" id="cam-width"></div>
+        <div class="field"><label>Height</label><input type="number" id="cam-height"></div>
+        <div class="field"><label>FPS</label><input type="number" id="cam-fps"></div>
+      </div>
+      <div class="form-actions">
+        <button onclick="saveSection('camera', ['enabled','device','width','height','fps'])">Save</button>
+        <span id="camera-status-msg" class="form-status"></span>
+      </div>
+    </section>
+
+    <section id="section-motion" class="card settings-section">
+      <h2>Motion detection</h2>
+      <div class="switch-row">
+        <div><div class="label">Motion detection enabled</div></div>
+        <label class="switch"><input type="checkbox" id="mo-enabled"><span class="slider"></span></label>
+      </div>
+      <div class="switch-row">
+        <div><div class="label">Save a snapshot on motion</div></div>
+        <label class="switch"><input type="checkbox" id="mo-snapshot"><span class="slider"></span></label>
+      </div>
+      <div class="form-grid" style="margin-top: 14px;">
+        <div class="field"><label>Check interval (seconds)</label><input type="number" step="0.1" id="mo-interval"></div>
+        <div class="field"><label>Pixel change threshold</label><input type="number" id="mo-pixel"><span class="hint">0-255, higher = less sensitive</span></div>
+        <div class="field"><label>Area threshold</label><input type="number" step="0.001" id="mo-area"><span class="hint">Fraction of frame changed, e.g. 0.02 = 2%</span></div>
+        <div class="field"><label>Notification cooldown (seconds)</label><input type="number" id="mo-cooldown"></div>
+      </div>
+      <div class="form-actions">
+        <button onclick="saveSection('motion', ['enabled','snapshot_on_motion','poll_interval_seconds','pixel_threshold','area_threshold'])">Save</button>
+        <button class="secondary" onclick="saveCooldown()">Save cooldown</button>
+        <span id="motion-status-msg" class="form-status"></span>
+      </div>
+    </section>
+
+    <section id="section-recording" class="card settings-section">
+      <h2>Recording</h2>
+      <div class="form-grid">
+        <div class="field">
+          <label>Mode</label>
+          <select id="rec-mode">
+            <option value="off">Off</option>
+            <option value="event">Record on motion</option>
+            <option value="continuous">Continuous 24/7 (until stopped)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Codec</label>
+          <select id="rec-codec">
+            <option value="copy">Copy (original quality, largest files, least CPU)</option>
+            <option value="h264">H.264 (smaller files, more CPU)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Recording width</label><input type="number" id="rec-width"><span class="hint">0 = same as camera</span></div>
+        <div class="field"><label>Recording height</label><input type="number" id="rec-height"><span class="hint">0 = same as camera</span></div>
+        <div class="field"><label>Recording FPS</label><input type="number" id="rec-fps"><span class="hint">0 = same as camera</span></div>
+        <div class="field"><label>Bitrate (kbps, H.264 only)</label><input type="number" id="rec-bitrate"><span class="hint">Lower = smaller files, lower quality</span></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Segment length (minutes)</label><input type="number" id="rec-segment"><span class="hint">New file every N minutes</span></div>
+        <div class="field"><label>Retention (days)</label><input type="number" id="rec-retention"></div>
+        <div class="field"><label>Manual clip length (seconds)</label><input type="number" id="rec-manual"></div>
+        <div class="field"><label>Post-motion recording (seconds)</label><input type="number" id="rec-post-event"></div>
+        <div class="field"><label>Max event length (seconds)</label><input type="number" id="rec-max-event"></div>
+      </div>
+      <div class="form-actions">
+        <button onclick="saveRecording()">Save</button>
+        <span id="recording-status-msg" class="form-status"></span>
+      </div>
+    </section>
+
+    <section id="section-telegram" class="card settings-section">
+      <h2>Telegram notifications</h2>
+      <div class="switch-row">
+        <div><div class="label">Telegram notifications enabled</div></div>
+        <label class="switch"><input type="checkbox" id="tg-enabled"><span class="slider"></span></label>
+      </div>
+      <div class="switch-row">
+        <div><div class="label">Send the snapshot with motion alerts</div><div class="hint">The photo that triggered the alert is attached to the Telegram message</div></div>
+        <label class="switch"><input type="checkbox" id="tg-send-photo"><span class="slider"></span></label>
+      </div>
+      <div class="form-grid" style="margin-top: 14px;">
+        <div class="field">
+          <label>Bot token</label>
+          <input type="password" id="tg-token" placeholder="Leave blank to keep current token">
+        </div>
+        <div class="field">
+          <label>Authorized chat IDs</label>
+          <input type="text" id="tg-chatids" placeholder="e.g. 123456789, 987654321">
+        </div>
+      </div>
+      <div class="switch-row">
+        <div><div class="label">Use a proxy</div><div class="hint">For networks where Telegram is blocked directly (HTTP or SOCKS5)</div></div>
+        <label class="switch"><input type="checkbox" id="tg-proxy-enabled"><span class="slider"></span></label>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Proxy URL</label>
+          <input type="text" id="tg-proxy-url" placeholder="http://127.0.0.1:8080 or socks5h://127.0.0.1:1080">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button onclick="saveTelegram()">Save</button>
+        <button class="secondary" onclick="testTelegram()">Test connection</button>
+        <span id="telegram-status-msg" class="form-status"></span>
+      </div>
+    </section>
+
+    <section id="section-general" class="card settings-section">
+      <h2>General &amp; Storage</h2>
+      <div class="form-grid">
+        <div class="field"><label>Site title</label><input type="text" id="gen-title"></div>
+        <div class="field"><label>Low storage warning (MB)</label><input type="number" id="gen-low-space"><span class="hint">Get a "StorageLow" event when free disk space drops below this</span></div>
+      </div>
+      <div class="form-actions">
+        <button onclick="saveGeneral()">Save</button>
+        <span id="general-status-msg" class="form-status"></span>
+      </div>
+
+      <hr style="border-color: var(--border); margin: 24px 0;">
+
+      <h2 style="color: var(--danger);">Danger zone</h2>
+      <p class="muted" style="font-size: 0.85rem; margin-top: 0;">
+        Resets <b>every</b> setting — camera, motion, recording, Telegram, general — and your login
+        (back to <code>pishak</code> / <code>pishak</code>). Recordings, snapshots and events are not touched.
+      </p>
+      <div class="form-grid">
+        <div class="field">
+          <label>Confirm with your current password</label>
+          <input type="password" id="reset-password" autocomplete="current-password">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="danger" onclick="resetAllSettings()">Reset all settings</button>
+        <span id="reset-status-msg" class="form-status"></span>
+      </div>
+    </section>
+
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/settings.js"></script>
+{% endblock %}

@@ -1,0 +1,55 @@
+# Copy this file to config/settings.yaml before first boot.
+# config/settings.yaml is gitignored — never commit real secrets.
+#
+# `app`, `database`, and `paths` below are static, infrastructure-level
+# settings: changing them requires editing this file and restarting.
+#
+# Everything else (camera, motion, recording, telegram, security) is only
+# used to SEED the database the very first time Pishak Home starts with a
+# fresh database. After that, use the Settings page in the dashboard —
+# editing this file again will have no effect.
+
+app:
+  host: "0.0.0.0"
+  port: 8000
+  log_level: "info"
+
+database:
+  path: "data/pishak.db"
+
+paths:
+  recordings_dir: "recordings"
+  snapshots_dir: "snapshots"
+
+# ---- one-time seed values below (edit via the Settings page after first boot) ----
+
+camera:
+  device: "/dev/video0"
+  width: 1920
+  height: 1080
+  fps: 30
+
+motion:
+  enabled: true
+  poll_interval_seconds: 1.0
+  pixel_threshold: 25
+  area_threshold: 0.02
+  event_cooldown_seconds: 30
+
+recording:
+  mode: "off"          # off | event | continuous
+  codec: "copy"         # copy (no re-encode) | h264 (smaller files, more CPU)
+  bitrate_kbps: 1500
+  segment_minutes: 15
+  retention_days: 7
+
+telegram:
+  enabled: false
+  bot_token: ""
+  authorized_chat_ids: []
+  send_snapshot_on_motion: true   # attach the snapshot to motion alerts
+  proxy_enabled: false
+  proxy_url: ""         # e.g. http://127.0.0.1:8080 or socks5h://127.0.0.1:1080
+
+security:
+  username: "pishak"     # default password is "pishak" — change it from Settings after first login

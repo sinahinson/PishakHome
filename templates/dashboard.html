@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Pishak Home — Live{% endblock %}
+{% block content %}
+<div class="grid">
+  <section class="card live-card wide">
+    <h2>
+      Live Camera
+      <span id="recording-badge" class="badge"><span class="dot"></span><span id="recording-badge-text">Off</span></span>
+    </h2>
+    <img id="live-feed" src="/video_feed" alt="Live camera feed">
+    <div class="actions">
+      <button onclick="takeSnapshot()">📸 Snapshot</button>
+      <button id="manual-record-btn" onclick="startManualRecording()">⏺ Record clip</button>
+      <button id="continuous-btn" class="secondary" onclick="toggleContinuous()">▶ Start 24/7 recording</button>
+      <button class="secondary" onclick="restartCamera()">🔄 Restart camera</button>
+    </div>
+    <div id="camera-restart-status" class="form-status"></div>
+  </section>
+
+  <section class="card">
+    <h2>System</h2>
+    <div id="system-status" class="stat-list">Loading…</div>
+  </section>
+
+  <section class="card">
+    <h2>Camera</h2>
+    <div id="camera-status" class="stat-list">Loading…</div>
+  </section>
+
+  <section class="card">
+    <h2>Network</h2>
+    <div id="network-status" class="stat-list">Loading…</div>
+  </section>
+
+  <section class="card wide">
+    <h2>Recent Events</h2>
+    <ul id="recent-events" class="event-list">Loading…</ul>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/dashboard.js"></script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Pishak Home — Events{% endblock %}
+{% block content %}
+<section class="card wide">
+  <h2>
+    All Events
+    <button class="secondary" onclick="clearAllEvents()">🗑 Clear all events</button>
+  </h2>
+  <span id="events-clear-status" class="form-status"></span>
+  <ul id="all-events" class="event-list">Loading…</ul>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+  loadAllEvents();
+
+  async function loadAllEvents() {
+    try {
+      const events = await apiJSON("/api/events?limit=300");
+      const el = document.getElementById("all-events");
+      if (!events.length) { el.innerHTML = "<li>No events yet.</li>"; return; }
+      el.innerHTML = events.map(e =>
+        `<li><span>${e.event_type}${e.zone ? " — " + e.zone : ""}${e.confidence != null ? " (" + e.confidence.toFixed(2) + ")" : ""}</span><span class="muted">${fmtTime(e.timestamp)}</span></li>`
+      ).join("");
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function clearAllEvents() {
+    if (!confirm("Delete all events? This cannot be undone.")) return;
+    const statusEl = document.getElementById("events-clear-status");
+    try {
+      const result = await apiJSON("/api/events/clear", { method: "POST" });
+      statusEl.textContent = `Deleted ${result.deleted} event(s).`;
+      statusEl.className = "form-status ok";
+      loadAllEvents();
+    } catch (err) {
+      statusEl.textContent = err.message;
+      statusEl.className = "form-status error";
+    }
+  }
+</script>
+{% endblock %}

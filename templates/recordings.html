@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Pishak Home — Recordings{% endblock %}
+{% block content %}
+<section class="card wide">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="recordings" onclick="switchTab('recordings')">🎬 Recordings</button>
+    <button class="tab-btn" data-tab="snapshots" onclick="switchTab('snapshots')">🖼 Snapshots</button>
+  </div>
+
+  <div id="tab-recordings" class="tab-panel active">
+    <div class="form-actions" style="margin-bottom: 10px;">
+      <button class="danger" onclick="clearAllRecordings()">🗑 Delete all recordings</button>
+      <span id="recordings-clear-status" class="form-status"></span>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>File</th><th>Date</th><th>Size</th><th></th></tr></thead>
+        <tbody id="recordings-body"><tr><td colspan="4">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="tab-snapshots" class="tab-panel">
+    <div class="form-actions" style="margin-bottom: 10px;">
+      <button class="danger" onclick="clearAllSnapshots()">🗑 Delete all snapshots</button>
+      <span id="snapshots-clear-status" class="form-status"></span>
+    </div>
+    <div id="snapshots-gallery" class="gallery">Loading…</div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+  function switchTab(tab) {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+    document.getElementById("tab-" + tab).classList.add("active");
+  }
+
+  async function loadRecordings() {
+    try {
+      const files = await apiJSON("/api/recordings");
+      const tbody = document.getElementById("recordings-body");
+      if (!files.length) { tbody.innerHTML = "<tr><td colspan='4'>No recordings yet.</td></tr>"; return; }
+      tbody.innerHTML = files.map(f => `
+        <tr>
+          <td>${f.name}</td>
+          <td>${fmtTime(f.modified_at)}</td>
+          <td>${fmtBytes(f.size_bytes)}</td>
+          <td><a class="btn secondary" href="${f.download_url}" download>Download</a></td>
+        </tr>`).join("");
+    } catch (err) { console.error(err); }
+  }
+
+  async function loadSnapshots() {
+    try {
+      const files = await apiJSON("/api/snapshots");
+      const el = document.getElementById("snapshots-gallery");
+      if (!files.length) { el.innerHTML = "<span class='muted'>No snapshots yet.</span>"; return; }
+      el.innerHTML = files.map(f =>
+        `<a href="${f.download_url}" download title="${fmtTime(f.modified_at)}"><img src="${f.download_url}" loading="lazy"></a>`
+      ).join("");
+    } catch (err) { console.error(err); }
+  }
+
+  loadRecordings();
+  loadSnapshots();
+
+  function showClearStatus(elId, message, ok) {
+    const el = document.getElementById(elId);
+    el.textContent = message;
+    el.className = "form-status " + (ok ? "ok" : "error");
+    setTimeout(() => { el.textContent = ""; }, 5000);
+  }
+
+  async function clearAllRecordings() {
+    if (!confirm("Delete ALL recordings? This cannot be undone.")) return;
+    try {
+      const result = await apiJSON("/api/recordings/clear", { method: "POST" });
+      showClearStatus("recordings-clear-status", `Deleted ${result.deleted} recording(s).`, true);
+      loadRecordings();
+    } catch (err) {
+      showClearStatus("recordings-clear-status", err.message, false);
+    }
+  }
+
+  async function clearAllSnapshots() {
+    if (!confirm("Delete ALL snapshots? This cannot be undone.")) return;
+    try {
+      const result = await apiJSON("/api/snapshots/clear", { method: "POST" });
+      showClearStatus("snapshots-clear-status", `Deleted ${result.deleted} snapshot(s).`, true);
+      loadSnapshots();
+    } catch (err) {
+      showClearStatus("snapshots-clear-status", err.message, false);
+    }
+  }
+</script>
+{% endblock %}

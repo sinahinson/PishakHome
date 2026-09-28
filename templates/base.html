@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Pishak Home{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">🐾 Pishak Home</div>
+    <nav>
+      <a href="/" class="{{ 'active' if active_page == 'live' else '' }}">Live</a>
+      <a href="/events" class="{{ 'active' if active_page == 'events' else '' }}">Events</a>
+      <a href="/recordings" class="{{ 'active' if active_page == 'recordings' else '' }}">Recordings</a>
+      <a href="/settings" class="{{ 'active' if active_page == 'settings' else '' }}">Settings</a>
+    </nav>
+    <form action="/logout" method="post">
+      <button type="submit" class="logout-btn">Logout</button>
+    </form>
+  </header>
+  <main class="content">
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="footer">
+    Pishak Home v1.0.0 — <a href="{{ github_url }}" target="_blank" rel="noopener">github.com/sinahinson/PishakHome</a>
+  </footer>
+  <script src="/static/js/common.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

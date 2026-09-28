@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pishak Home — Login</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card">
+      <img class="login-avatar" src="/static/img/pishak.jpg" alt="Pishak" width="96" height="96">
+      <h1>Pishak Home</h1>
+      {% if default_password_active %}
+      <div class="login-notice">Default password is still active — change it in Settings after logging in.</div>
+      {% endif %}
+      {% if error %}
+      <div class="login-error">{{ error }}</div>
+      {% endif %}
+      <form method="post" action="/login">
+        <input type="text" name="username" placeholder="Username" autocomplete="username" required autofocus>
+        <input type="password" name="password" placeholder="Password" autocomplete="current-password" required>
+        <button type="submit">Log in</button>
+      </form>
+      <div style="margin-top: 18px; font-size: 0.8rem;">
+        <a href="https://github.com/sinahinson/PishakHome" target="_blank" rel="noopener">⭐ github.com/sinahinson/PishakHome</a>
+      </div>
+      <div class="muted" style="margin-top: 4px; font-size: 0.75rem;">v1.0.0</div>
+    </div>
+  </div>
+</body>
+</html>

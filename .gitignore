@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Project runtime data (should never be committed)
+data/*.db
+data/*.sqlite3
+recordings/*
+snapshots/*
+logs/*.log
+config/settings.yaml
+config/secrets.*
+
+# Keep empty dirs tracked
+!data/.gitkeep
+!recordings/.gitkeep
+!snapshots/.gitkeep
+!logs/.gitkeep
+!config/.gitkeep
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
